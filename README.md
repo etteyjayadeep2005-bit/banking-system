@@ -1,5 +1,6 @@
 # Banking System (Spring Boot REST API)
 **Live demo:** https://banking-system-r1q8.onrender.com (free hosting, the first request may take about a minute to wake up)
+**API docs (Swagger UI):** https://banking-system-r1q8.onrender.com/swagger-ui/index.html
 A simple banking REST API built with Java and Spring Boot. It supports creating accounts, deposits, withdrawals, money transfers and transaction history.
 
 ## Tech Stack
