@@ -1,13 +1,18 @@
 # Banking System (Spring Boot REST API)
+
+A banking REST API built with Java and Spring Boot. It supports creating accounts, deposits, withdrawals, money transfers and transaction history.
+
 **Live demo:** https://banking-system-r1q8.onrender.com (free hosting, the first request may take about a minute to wake up)
+
 **API docs (Swagger UI):** https://banking-system-r1q8.onrender.com/swagger-ui/index.html
-A simple banking REST API built with Java and Spring Boot. It supports creating accounts, deposits, withdrawals, money transfers and transaction history.
 
 ## Tech Stack
-- Java 17
+- Java 21
 - Spring Boot, Spring Data JPA (Hibernate)
-- H2 in-memory database
-- Maven
+- PostgreSQL (Neon) in production, H2 in-memory database for local development
+- Swagger UI (springdoc-openapi)
+- Maven, Docker
+- Deployed on Render
 
 ## Features
 - Create a bank account with an initial deposit
@@ -16,6 +21,7 @@ A simple banking REST API built with Java and Spring Boot. It supports creating 
 - Optimistic locking to handle concurrent updates
 - Input validation and global exception handling
 - Transaction history for every account
+- Persistent data stored in a managed PostgreSQL database
 
 ## API Endpoints
 
@@ -48,19 +54,22 @@ A simple banking REST API built with Java and Spring Boot. It supports creating 
 ```
 
 ## How to Run Locally
-1. Install JDK 17 or higher
+1. Install JDK 21 or higher
 2. Clone the repository:
    ```
    git clone https://github.com/etteyjayadeep2005-bit/banking-system.git
    ```
-3. Go into the folder and run:
+3. Go into the folder and run (on Windows use `mvnw.cmd spring-boot:run`):
    ```
    ./mvnw spring-boot:run
    ```
-4. The API starts at `http://localhost:8080`
+4. The API starts at `http://localhost:8080` and Swagger UI is at `http://localhost:8080/swagger-ui/index.html`
+
+By default the app uses an in-memory H2 database locally. To use PostgreSQL, set these environment variables before running:
+- `DB_URL` (for example `jdbc:postgresql://HOST/DBNAME?sslmode=require`)
+- `DB_USER`
+- `DB_PASSWORD`
 
 ## Roadmap
-- PostgreSQL database
 - JWT authentication with customer and admin roles
 - Unit and integration tests
-- Swagger API documentation
