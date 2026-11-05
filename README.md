@@ -11,6 +11,7 @@ A banking REST API built with Java and Spring Boot. It supports creating account
 - Spring Boot, Spring Data JPA (Hibernate)
 - PostgreSQL (Neon) in production, H2 in-memory database for local development
 - Swagger UI (springdoc-openapi)
+- JUnit 5 and Mockito for unit tests
 - Maven, Docker
 - Deployed on Render
 
@@ -22,6 +23,7 @@ A banking REST API built with Java and Spring Boot. It supports creating account
 - Input validation and global exception handling
 - Transaction history for every account
 - Persistent data stored in a managed PostgreSQL database
+- Unit tests for account creation, deposits, withdrawals and transfers (including failure cases)
 
 ## API Endpoints
 
@@ -70,6 +72,12 @@ By default the app uses an in-memory H2 database locally. To use PostgreSQL, set
 - `DB_USER`
 - `DB_PASSWORD`
 
+## Run Tests
+'''
+- ./mvnw test
+'''
+
 ## Roadmap
 - JWT authentication with customer and admin roles
-- Unit and integration tests
+- Integration tests for the REST endpoints
+
