@@ -73,9 +73,9 @@ By default the app uses an in-memory H2 database locally. To use PostgreSQL, set
 - `DB_PASSWORD`
 
 ## Run Tests
-'''
+```
 - ./mvnw test
-'''
+```
 
 ## Roadmap
 - JWT authentication with customer and admin roles
