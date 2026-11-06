@@ -26,8 +26,14 @@ public class AccountService {
 
     @Transactional
     public Account create(String holderName, BigDecimal initialDeposit) {
+        return create(holderName, initialDeposit, null);
+    }
+
+    @Transactional
+    public Account create(String holderName, BigDecimal initialDeposit, String ownerUsername) {
         Account a = new Account();
         a.setHolderName(holderName);
+        a.setOwnerUsername(ownerUsername);
         a.setAccountNumber("SB" + ThreadLocalRandom.current().nextLong(1_000_000_000L, 9_999_999_999L));
         a.setBalance(initialDeposit);
         Account saved = accounts.save(a);
@@ -40,6 +46,14 @@ public class AccountService {
     public Account get(String accountNumber) {
         return accounts.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundException("Account not found: " + accountNumber));
+    }
+
+    public List<Account> listByOwner(String ownerUsername) {
+        return accounts.findByOwnerUsernameOrderByIdAsc(ownerUsername);
+    }
+
+    public List<Account> listAll() {
+        return accounts.findAll();
     }
 
     @Transactional

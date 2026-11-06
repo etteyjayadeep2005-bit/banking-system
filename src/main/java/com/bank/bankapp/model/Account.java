@@ -17,8 +17,10 @@ public class Account {
 
     private BigDecimal balance = BigDecimal.ZERO;
 
+    private String ownerUsername; // which user owns this account
+
     @Version
-    private Long version;
+    private Long version; // two transfers okesari jarigithe conflict catch cheyadaniki
 
     public Long getId() { return id; }
     public String getHolderName() { return holderName; }
@@ -27,4 +29,6 @@ public class Account {
     public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
     public BigDecimal getBalance() { return balance; }
     public void setBalance(BigDecimal balance) { this.balance = balance; }
+    public String getOwnerUsername() { return ownerUsername; }
+    public void setOwnerUsername(String ownerUsername) { this.ownerUsername = ownerUsername; }
 }
