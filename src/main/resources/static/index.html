@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Banking System</title>
+    <style>
+        :root {
+            --cover: #1d2b5c;
+            --cover-deep: #121b3d;
+            --paper: #f3f6f2;
+            --sheet: #ffffff;
+            --ink: #1b2236;
+            --muted: #5d6779;
+            --rule: #c9dbe9;
+            --margin: #d98a85;
+            --credit: #1d7448;
+            --debit: #a7352e;
+            --gold: #b58426;
+            --line: #d9dfe6;
+            --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+            --font-head: Georgia, "Times New Roman", serif;
+            color-scheme: light;
+        }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; }
+        [hidden] { display: none !important; }
+        body {
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.5;
+            color: var(--ink);
+            background: var(--paper);
+        }
+        h1, h2, h3 { font-family: var(--font-head); margin: 0; }
+        button, input { font: inherit; }
+        :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+        /* Buttons and fields */
+        .btn {
+            min-height: 44px;
+            padding: 0.55rem 1.1rem;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn.primary { background: var(--cover); color: #fff; }
+        .btn.primary:hover { background: var(--cover-deep); }
+        .btn.ghost { background: transparent; border-color: #9aa6b5; color: var(--ink); }
+        .btn.ghost:hover { background: #eaeff5; }
+        .btn.small { min-height: 36px; padding: 0.3rem 0.8rem; font-size: 0.9rem; }
+        .btn[disabled] { opacity: 0.6; cursor: wait; }
+        .field { display: grid; gap: 6px; margin-bottom: 16px; }
+        .field label { font-weight: 600; }
+        .field .hint { margin: 0; font-size: 0.9rem; color: var(--muted); }
+        input {
+            min-height: 44px;
+            padding: 0.55rem 0.75rem;
+            border: 1px solid #8f9bab;
+            border-radius: 6px;
+            background: #fff;
+            color: var(--ink);
+            width: 100%;
+        }
+        .notice {
+            margin: 0 0 16px;
+            padding: 10px 14px;
+            border-left: 4px solid var(--cover);
+            border-radius: 4px;
+            background: #e9edf8;
+        }
+        .notice.ok { border-color: var(--credit); background: #e4f3ea; }
+        .notice.error { border-color: var(--debit); background: #f9e7e5; }
+
+        /* Sign in screen */
+        .auth { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); }
+        .cover {
+            background-color: var(--cover);
+            background-image: repeating-linear-gradient(to bottom, transparent 0 31px, rgba(255, 255, 255, 0.07) 31px 32px);
+            color: #fff;
+            padding: clamp(28px, 6vw, 72px);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            gap: 14px;
+        }
+        .cover h1 { font-size: clamp(2.3rem, 5vw, 3.7rem); line-height: 1.05; letter-spacing: -0.01em; }
+        .cover .lede { margin: 0; max-width: 30ch; font-size: 1.15rem; color: #e2e7f8; }
+        .cover .fine { margin: 8px 0 0; max-width: 42ch; font-size: 0.9rem; color: #b4bedf; }
+        .auth-panel {
+            padding: clamp(24px, 6vw, 72px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+            max-width: 540px;
+        }
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+        .tabs .btn[aria-pressed="true"] { background: var(--cover); color: #fff; border-color: var(--cover); }
+
+        /* App screen */
+        .bar {
+            background: var(--cover);
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 12px clamp(16px, 4vw, 40px);
+        }
+        .brand { font-family: var(--font-head); font-size: 1.25rem; font-weight: 700; }
+        .who { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .who .btn.ghost { color: #fff; border-color: rgba(255, 255, 255, 0.55); }
+        .who .btn.ghost:hover { background: rgba(255, 255, 255, 0.12); }
+        .chip {
+            padding: 2px 10px;
+            border-radius: 999px;
+            background: var(--gold);
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .page { max-width: 1120px; margin: 0 auto; padding: 24px clamp(16px, 4vw, 40px) 80px; }
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+            gap: 28px;
+            align-items: start;
+        }
+        .side h2 { font-size: 1.3rem; margin-bottom: 12px; }
+        .acct-list { list-style: none; margin: 0 0 20px; padding: 0; display: grid; gap: 8px; }
+        .acct {
+            width: 100%;
+            text-align: left;
+            background: var(--sheet);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px 14px;
+            cursor: pointer;
+            display: grid;
+            gap: 2px;
+            color: var(--ink);
+        }
+        .acct:hover { border-color: var(--cover); }
+        .acct[aria-current="true"] { border-color: var(--cover); background: #e9edf8; box-shadow: inset 4px 0 0 var(--cover); }
+        .acct .name { font-weight: 700; }
+        .acct .num, .acct .owner { color: var(--muted); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+        .acct .bal { font-variant-numeric: tabular-nums; font-weight: 600; }
+        .new-account {
+            background: var(--sheet);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .new-account summary { cursor: pointer; font-weight: 700; }
+        .new-account form { margin-top: 14px; }
+        .empty { color: var(--muted); }
+
+        .sheet {
+            background: var(--sheet);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: clamp(16px, 3vw, 28px);
+        }
+        .sheet header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+        .sheet h2 { font-size: 1.5rem; }
+        .meta { margin: 4px 0 0; color: var(--muted); font-variant-numeric: tabular-nums; }
+        .balance-label { margin: 20px 0 0; color: var(--muted); font-size: 0.9rem; }
+        .balance {
+            margin: 0;
+            font-family: var(--font-head);
+            font-size: clamp(2rem, 5vw, 2.9rem);
+            line-height: 1.15;
+            font-variant-numeric: tabular-nums;
+        }
+        .seg { display: inline-flex; border: 1px solid #8f9bab; border-radius: 8px; overflow: hidden; margin: 22px 0 14px; }
+        .seg button {
+            min-height: 44px;
+            padding: 0.5rem 1rem;
+            border: 0;
+            background: #fff;
+            color: var(--ink);
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .seg button + button { border-left: 1px solid #8f9bab; }
+        .seg button[aria-pressed="true"] { background: var(--cover); color: #fff; }
+        .action-form { max-width: 420px; }
+
+        .passbook h3 { font-size: 1.15rem; margin: 28px 0 8px; }
+        .ledger-wrap { overflow-x: auto; border-left: 3px double var(--margin); }
+        table { width: 100%; border-collapse: collapse; min-width: 560px; }
+        th {
+            text-align: left;
+            font-size: 0.85rem;
+            color: var(--muted);
+            font-weight: 600;
+            padding: 8px 12px;
+            border-bottom: 2px solid var(--cover);
+            white-space: nowrap;
+        }
+        td { padding: 9px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+        th.n, td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        td:first-child { white-space: nowrap; }
+        td.credit { color: var(--credit); }
+        td.debit { color: var(--debit); }
+
+        .wake {
+            position: fixed;
+            left: 50%;
+            bottom: 16px;
+            transform: translateX(-50%);
+            max-width: calc(100% - 32px);
+            background: var(--cover-deep);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 8px;
+            z-index: 10;
+        }
+
+        @media (max-width: 800px) {
+            .auth { grid-template-columns: 1fr; }
+            .cover { min-height: 36vh; }
+            .auth-panel { max-width: none; }
+            .layout { grid-template-columns: 1fr; }
+        }
+        @media (prefers-reduced-motion: no-preference) {
+            .btn, .acct { transition: background-color 0.15s, border-color 0.15s; }
+        }
+    </style>
+</head>
+<body>
+<div id="app"></div>
+<div id="wake" class="wake" role="status" hidden>The free server is waking up. This can take up to a minute.</div>
+
+<script>
+    (function () {
+        'use strict';
+
+        var root = document.getElementById('app');
+        var money = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
+        var session = { token: null, role: null, username: null };
+        var state = { accounts: [], account: null, txns: [], action: 'deposit' };
+
+        var store = {
+            get: function (k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
+            set: function (k, v) { try { sessionStorage.setItem(k, v); } catch (e) { /* storage blocked */ } },
+            clear: function () { try { sessionStorage.clear(); } catch (e) { /* storage blocked */ } }
+        };
+
+        /* Small helper to build elements. Text always goes in as text, never as HTML. */
+        function h(tag, props) {
+            var node = document.createElement(tag);
+            var p = props || {};
+            Object.keys(p).forEach(function (k) {
+                var v = p[k];
+                if (v === null || v === undefined || v === false) return;
+                if (k === 'class') node.className = v;
+                else if (k === 'text') node.textContent = v;
+                else if (k.indexOf('on') === 0) node.addEventListener(k.slice(2), v);
+                else node.setAttribute(k, v === true ? '' : v);
+            });
+            var kids = Array.prototype.slice.call(arguments, 2);
+            kids.forEach(function add(kid) {
+                if (kid === null || kid === undefined || kid === false) return;
+                if (Array.isArray(kid)) { kid.forEach(add); return; }
+                node.appendChild(kid.nodeType ? kid : document.createTextNode(String(kid)));
+            });
+            return node;
+        }
+
+        function field(labelText, input, hint) {
+            return h('div', { class: 'field' },
+                h('label', { for: input.id, text: labelText }),
+                input,
+                hint ? h('p', { class: 'hint', text: hint }) : null);
+        }
+
+        function show(el, message, kind) {
+            if (!el) return;
+            el.textContent = message || '';
+            el.className = 'notice' + (message && kind ? ' ' + kind : '');
+            el.hidden = !message;
+        }
+
+        function notify(message, kind) {
+            show(document.getElementById('notice'), message, kind);
+        }
+
+        function round2(n) { return Math.round(n * 100) / 100; }
+
+        function fmtDate(v) {
+            var parts;
+            if (Array.isArray(v)) {
+                parts = v.slice(0, 5);
+            } else {
+                var m = String(v).match(/(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
+                if (!m) return String(v);
+                parts = m.slice(1, 6).map(Number);
+            }
+            var d = new Date(parts[0], parts[1] - 1, parts[2], parts[3] || 0, parts[4] || 0);
+            return d.toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+        }
+
+        function isExpired(token) {
+            try {
+                var payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+                return !payload.exp || payload.exp * 1000 < Date.now();
+            } catch (e) {
+                return true;
+            }
+        }
+
+        /* API calls. Same origin, so no extra setup is needed. */
+        function api(path, options) {
+            var opts = options || {};
+            var headers = { 'Content-Type': 'application/json' };
+            if (session.token) headers.Authorization = 'Bearer ' + session.token;
+            var wake = document.getElementById('wake');
+            var timer = setTimeout(function () { wake.hidden = false; }, 3500);
+            function done() { clearTimeout(timer); wake.hidden = true; }
+
+            return fetch(path, {
+                method: opts.method || 'GET',
+                headers: headers,
+                body: opts.body ? JSON.stringify(opts.body) : undefined
+            }).then(function (res) {
+                return res.text().then(function (text) {
+                    var data = null;
+                    try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+                    done();
+                    if (res.status === 401 && session.token) {
+                        signOut('Your session ended. Please sign in again.');
+                        var ended = new Error('Session ended');
+                        ended.handled = true;
+                        throw ended;
+                    }
+                    if (!res.ok) {
+                        var msg = (data && data.error) ||
+                            (res.status === 403 ? 'You do not have access to this.' : 'Something went wrong (' + res.status + ').');
+                        throw new Error(msg);
+                    }
+                    return data;
+                });
+            }, function () {
+                done();
+                throw new Error('Cannot reach the server. Check your connection and try again.');
+            });
+        }
+
+        function startSession(res) {
+            session.token = res.token;
+            session.role = res.role;
+            session.username = res.username;
+            store.set('token', res.token);
+            store.set('role', res.role);
+            store.set('username', res.username);
+            renderApp();
+        }
+
+        function signOut(message) {
+            session.token = null;
+            session.role = null;
+            session.username = null;
+            state.accounts = [];
+            state.account = null;
+            state.txns = [];
+            store.clear();
+            renderAuth(message);
+        }
+
+        /* Sign in and register screen */
+        function renderAuth(message) {
+            var mode = 'login';
+            var panel = h('div', { class: 'auth-panel' });
+            var cover = h('section', { class: 'cover' },
+                h('h1', { text: 'Banking System' }),
+                h('p', { class: 'lede', text: 'Open an account, move money and read your passbook.' }),
+                h('p', { class: 'fine', text: 'This is a demo project. Do not use a real password or real bank details.' }));
+            root.replaceChildren(h('main', { class: 'auth' }, cover, panel));
+            draw(message);
+
+            function tab(value, label) {
+                return h('button', {
+                    type: 'button',
+                    class: 'btn ghost',
+                    'aria-pressed': mode === value ? 'true' : 'false',
+                    text: label,
+                    onclick: function () { mode = value; draw(); }
+                });
+            }
+
+            function draw(msg) {
+                var notice = h('p', { class: 'notice', role: 'status', hidden: true });
+                show(notice, msg, 'info');
+                var username = h('input', {
+                    id: 'username', name: 'username', autocomplete: 'username',
+                    required: true, minlength: 3, maxlength: 30
+                });
+                var password = h('input', {
+                    id: 'password', name: 'password', type: 'password',
+                    autocomplete: mode === 'login' ? 'current-password' : 'new-password',
+                    required: true, minlength: mode === 'login' ? 1 : 6, maxlength: 72
+                });
+                var submit = h('button', {
+                    type: 'submit', class: 'btn primary',
+                    text: mode === 'login' ? 'Sign in' : 'Create account and sign in'
+                });
+                var form = h('form', {
+                        onsubmit: function (e) {
+                            e.preventDefault();
+                            submit.disabled = true;
+                            var creds = { username: username.value.trim(), password: password.value };
+                            var start = mode === 'register'
+                                ? api('/api/auth/register', { method: 'POST', body: creds })
+                                : Promise.resolve();
+                            start
+                                .then(function () { return api('/api/auth/login', { method: 'POST', body: creds }); })
+                                .then(startSession)
+                                .catch(function (err) {
+                                    if (!err.handled) show(notice, err.message, 'error');
+                                    submit.disabled = false;
+                                });
+                        }
+                    },
+                    field('Username', username, mode === 'register' ? 'Use 3 to 30 characters.' : null),
+                    field('Password', password, mode === 'register' ? 'Use at least 6 characters.' : null),
+                    notice,
+                    submit);
+
+                panel.replaceChildren(
+                    h('div', { class: 'tabs' }, tab('login', 'Sign in'), tab('register', 'Create account')),
+                    form);
+            }
+        }
+
+        /* App screen */
+        function renderApp() {
+            var header = h('header', { class: 'bar' },
+                h('div', { class: 'brand', text: 'Banking System' }),
+                h('div', { class: 'who' },
+                    h('span', { text: session.username }),
+                    session.role === 'ADMIN' ? h('span', { class: 'chip', text: 'Admin' }) : null,
+                    h('button', { type: 'button', class: 'btn ghost small', text: 'Sign out', onclick: function () { signOut(); } })));
+            var page = h('div', { class: 'page' },
+                h('p', { id: 'notice', class: 'notice', role: 'status', hidden: true }),
+                h('div', { class: 'layout' },
+                    h('aside', { id: 'side', class: 'side' }),
+                    h('section', { id: 'detail' })));
+            root.replaceChildren(header, page);
+            state.account = null;
+            state.txns = [];
+            loadAccounts();
+        }
+
+        function fail(err) {
+            if (!err.handled) notify(err.message, 'error');
+        }
+
+        function loadAccounts(selectNumber) {
+            var path = session.role === 'ADMIN' ? '/api/admin/accounts' : '/api/accounts';
+            return api(path).then(function (list) {
+                state.accounts = list || [];
+                renderSide();
+                var target = selectNumber ||
+                    (state.account && state.account.accountNumber) ||
+                    (state.accounts[0] && state.accounts[0].accountNumber);
+                if (target) return openAccount(target);
+                state.account = null;
+                state.txns = [];
+                renderDetail();
+            }).catch(fail);
+        }
+
+        function openAccount(number) {
+            var base = '/api/accounts/' + encodeURIComponent(number);
+            return Promise.all([api(base), api(base + '/transactions')]).then(function (res) {
+                state.account = res[0];
+                state.txns = res[1] || [];
+                renderSide();
+                renderDetail();
+            }).catch(fail);
+        }
+
+        function renderSide() {
+            var side = document.getElementById('side');
+            if (!side) return;
+            var isAdmin = session.role === 'ADMIN';
+
+            var items = state.accounts.map(function (a) {
+                var current = state.account && state.account.accountNumber === a.accountNumber;
+                return h('li', null,
+                    h('button', {
+                            type: 'button',
+                            class: 'acct',
+                            'aria-current': current ? 'true' : null,
+                            onclick: function () { notify(''); openAccount(a.accountNumber); }
+                        },
+                        h('span', { class: 'name', text: a.holderName }),
+                        h('span', { class: 'num', text: a.accountNumber }),
+                        isAdmin ? h('span', { class: 'owner', text: 'Owner: ' + (a.ownerUsername || 'none (created before login)') }) : null,
+                        h('span', { class: 'bal', text: money.format(a.balance) })));
+            });
+
+            var holder = h('input', { id: 'holder', required: true, maxlength: 60, autocomplete: 'name' });
+            var opening = h('input', {
+                id: 'opening', type: 'number', min: '0', step: '0.01',
+                required: true, inputmode: 'decimal', value: '1000'
+            });
+            var create = h('button', { type: 'submit', class: 'btn primary', text: 'Open account' });
+            var form = h('form', {
+                    onsubmit: function (e) {
+                        e.preventDefault();
+                        create.disabled = true;
+                        api('/api/accounts', {
+                            method: 'POST',
+                            body: { holderName: holder.value.trim(), initialDeposit: Number(opening.value) }
+                        }).then(function (created) {
+                            notify('Account ' + created.accountNumber + ' is open.', 'ok');
+                            return loadAccounts(created.accountNumber);
+                        }).catch(fail).then(function () { create.disabled = false; });
+                    }
+                },
+                field('Account holder name', holder),
+                field('Opening deposit (INR)', opening),
+                create);
+
+            side.replaceChildren(
+                h('h2', { text: isAdmin ? 'All accounts' : 'Your accounts' }),
+                items.length
+                    ? h('ul', { class: 'acct-list' }, items)
+                    : h('p', { class: 'empty', text: 'No accounts yet. Open your first account below.' }),
+                h('details', { class: 'new-account', open: items.length === 0 ? true : null },
+                    h('summary', { text: 'Open a new account' }),
+                    form));
+        }
+
+        function ledgerRows(txns, balance) {
+            var running = round2(Number(balance));
+            return txns.map(function (t) {
+                var amount = round2(Number(t.amount));
+                var credit = t.type === 'DEPOSIT' || t.type === 'TRANSFER_IN';
+                var row = { type: t.type, createdAt: t.createdAt, amount: amount, credit: credit, after: running };
+                running = round2(running + (credit ? -amount : amount));
+                return row;
+            });
+        }
+
+        var LABELS = {
+            DEPOSIT: 'Deposit',
+            WITHDRAW: 'Withdrawal',
+            TRANSFER_IN: 'Transfer received',
+            TRANSFER_OUT: 'Transfer sent'
+        };
+
+        function renderDetail() {
+            var box = document.getElementById('detail');
+            if (!box) return;
+            var a = state.account;
+            if (!a) {
+                box.replaceChildren(h('div', { class: 'sheet' },
+                    h('h2', { text: 'No account selected' }),
+                    h('p', { class: 'empty', text: 'Open an account to start depositing, withdrawing and sending money.' })));
+                return;
+            }
+
+            var amount = h('input', {
+                id: 'amount', type: 'number', min: '0.01', step: '0.01',
+                required: true, inputmode: 'decimal'
+            });
+            var to = h('input', { id: 'to', autocomplete: 'off', placeholder: 'For example SB1234567890' });
+            var toField = field('Send to account number', to);
+            var submit = h('button', { type: 'submit', class: 'btn primary' });
+            var buttons = {};
+
+            function syncAction() {
+                Object.keys(buttons).forEach(function (k) {
+                    buttons[k].setAttribute('aria-pressed', k === state.action ? 'true' : 'false');
+                });
+                var transfer = state.action === 'transfer';
+                toField.hidden = !transfer;
+                to.required = transfer;
+                submit.textContent = state.action === 'deposit' ? 'Deposit money'
+                    : state.action === 'withdraw' ? 'Withdraw money' : 'Send money';
+            }
+
+            function segButton(value, label) {
+                buttons[value] = h('button', {
+                    type: 'button',
+                    text: label,
+                    onclick: function () { state.action = value; syncAction(); }
+                });
+                return buttons[value];
+            }
+
+            var form = h('form', {
+                    class: 'action-form',
+                    onsubmit: function (e) {
+                        e.preventDefault();
+                        submit.disabled = true;
+                        var value = Number(amount.value);
+                        var request;
+                        if (state.action === 'transfer') {
+                            var target = to.value.trim();
+                            request = api('/api/transfers', {
+                                method: 'POST',
+                                body: { fromAccount: a.accountNumber, toAccount: target, amount: value }
+                            }).then(function () { notify('Sent ' + money.format(value) + ' to ' + target + '.', 'ok'); });
+                        } else {
+                            request = api('/api/accounts/' + encodeURIComponent(a.accountNumber) + '/' + state.action, {
+                                method: 'POST',
+                                body: { amount: value }
+                            }).then(function () {
+                                notify((state.action === 'deposit' ? 'Deposited ' : 'Withdrew ') + money.format(value) + '.', 'ok');
+                            });
+                        }
+                        request
+                            .then(function () { return loadAccounts(a.accountNumber); })
+                            .catch(fail)
+                            .then(function () { submit.disabled = false; });
+                    }
+                },
+                field('Amount (INR)', amount),
+                toField,
+                submit);
+
+            var rows = ledgerRows(state.txns, a.balance);
+            var ledger = rows.length
+                ? h('div', { class: 'ledger-wrap' },
+                    h('table', null,
+                        h('thead', null, h('tr', null,
+                            h('th', { scope: 'col', text: 'Date' }),
+                            h('th', { scope: 'col', text: 'Details' }),
+                            h('th', { scope: 'col', class: 'n', text: 'Withdrawal' }),
+                            h('th', { scope: 'col', class: 'n', text: 'Deposit' }),
+                            h('th', { scope: 'col', class: 'n', text: 'Balance' }))),
+                        h('tbody', null, rows.map(function (r) {
+                            return h('tr', null,
+                                h('td', { text: fmtDate(r.createdAt) }),
+                                h('td', { text: LABELS[r.type] || r.type }),
+                                h('td', { class: 'n debit', text: r.credit ? '' : money.format(r.amount) }),
+                                h('td', { class: 'n credit', text: r.credit ? money.format(r.amount) : '' }),
+                                h('td', { class: 'n', text: money.format(r.after) }));
+                        }))))
+                : h('p', { class: 'empty', text: 'No transactions yet. Make a deposit and it will appear here.' });
+
+            var copy = h('button', {
+                type: 'button', class: 'btn ghost small', text: 'Copy number',
+                onclick: function (e) {
+                    var btn = e.currentTarget;
+                    navigator.clipboard.writeText(a.accountNumber).then(function () {
+                        btn.textContent = 'Copied';
+                        setTimeout(function () { btn.textContent = 'Copy number'; }, 1500);
+                    }, function () {
+                        notify('Could not copy. Select the number and copy it by hand.', 'error');
+                    });
+                }
+            });
+
+            box.replaceChildren(h('div', { class: 'sheet' },
+                h('header', null,
+                    h('div', null,
+                        h('h2', { text: a.holderName }),
+                        h('p', { class: 'meta', text: 'Account ' + a.accountNumber }),
+                        session.role === 'ADMIN'
+                            ? h('p', { class: 'meta', text: 'Owner: ' + (a.ownerUsername || 'none (created before login)') })
+                            : null),
+                    copy),
+                h('p', { class: 'balance-label', text: 'Balance' }),
+                h('p', { class: 'balance', text: money.format(a.balance) }),
+                h('div', { class: 'seg', role: 'group', 'aria-label': 'Choose an action' },
+                    segButton('deposit', 'Deposit'),
+                    segButton('withdraw', 'Withdraw'),
+                    segButton('transfer', 'Transfer')),
+                form,
+                h('div', { class: 'passbook' },
+                    h('h3', { text: 'Passbook' }),
+                    ledger)));
+            syncAction();
+        }
+
+        /* Start: reuse the saved sign-in while the token is still valid */
+        var saved = store.get('token');
+        if (saved && !isExpired(saved)) {
+            session.token = saved;
+            session.role = store.get('role');
+            session.username = store.get('username');
+            renderApp();
+        } else {
+            store.clear();
+            renderAuth();
+        }
+    })();
+</script>
+</body>
+</html>
