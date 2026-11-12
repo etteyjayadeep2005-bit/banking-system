@@ -1,8 +1,8 @@
-# Banking System (Spring Boot REST API)
+# Banking System (Spring Boot REST API and Web App)
 
-A banking REST API built with Java and Spring Boot. It supports user registration and login with JWT, role-based access (customer and admin), accounts, deposits, withdrawals, money transfers and transaction history.
+A banking application built with Java and Spring Boot, with a web page on top. It supports user registration and login with JWT, role-based access (customer and admin), accounts, deposits, withdrawals, money transfers and a passbook-style transaction history.
 
-**Live demo:** https://banking-system-r1q8.onrender.com (free hosting, the first request may take about a minute to wake up)
+**Live app:** https://banking-system-r1q8.onrender.com (free hosting, the first request may take about a minute to wake up)
 
 **API docs (Swagger UI):** https://banking-system-r1q8.onrender.com/swagger-ui/index.html
 
@@ -11,6 +11,7 @@ A banking REST API built with Java and Spring Boot. It supports user registratio
 - Spring Boot, Spring Data JPA (Hibernate)
 - Spring Security with JWT (OAuth2 resource server), BCrypt password hashing
 - PostgreSQL (Neon) in production, H2 in-memory database for local development
+- Web frontend in plain HTML, CSS and JavaScript, served by Spring Boot
 - Swagger UI (springdoc-openapi)
 - JUnit 5 and Mockito for unit tests
 - Maven, Docker
@@ -25,13 +26,14 @@ A banking REST API built with Java and Spring Boot. It supports user registratio
 - Optimistic locking to handle concurrent updates
 - Input validation and global exception handling
 - Transaction history for every account
+- Web app with sign in, account list, deposit, withdraw, transfer and a passbook-style transaction history with running balance
 - Persistent data stored in a managed PostgreSQL database
 - Unit tests for account creation, deposits, withdrawals and transfers (including failure cases)
 
 ## How Authentication Works
 1. `POST /api/auth/register` creates a customer user.
 2. `POST /api/auth/login` returns a JWT token.
-3. Send the token in the `Authorization: Bearer <token>` header on every other request.
+3. Send the token in the `Authorization: Bearer <token>` header on every other request. The web app does this automatically after you sign in.
 4. In Swagger UI, click **Authorize** and paste the token.
 
 Without a token the API returns `401`. Accessing another user's account returns `403`.
@@ -80,7 +82,7 @@ Without a token the API returns `401`. Accessing another user's account returns 
    ```
    ./mvnw spring-boot:run
    ```
-4. The API starts at `http://localhost:8080` and Swagger UI is at `http://localhost:8080/swagger-ui/index.html`
+4. Open `http://localhost:8080` for the web app. Swagger UI is at `http://localhost:8080/swagger-ui/index.html`
 
 By default the app uses an in-memory H2 database locally. Optional environment variables:
 - `DB_URL` (for example `jdbc:postgresql://HOST/DBNAME?sslmode=require`), `DB_USER`, `DB_PASSWORD` to use PostgreSQL
@@ -95,4 +97,3 @@ By default the app uses an in-memory H2 database locally. Optional environment v
 
 ## Roadmap
 - Integration tests for the REST endpoints
-- Simple web frontend
