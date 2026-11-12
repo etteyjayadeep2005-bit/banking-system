@@ -13,7 +13,7 @@ A banking application built with Java and Spring Boot, with a web page on top. I
 - PostgreSQL (Neon) in production, H2 in-memory database for local development
 - Web frontend in plain HTML, CSS and JavaScript, served by Spring Boot
 - Swagger UI (springdoc-openapi)
-- JUnit 5 and Mockito for unit tests
+- JUnit 5, Mockito and Spring MockMvc for unit and integration tests
 - Maven, Docker
 - Deployed on Render
 
@@ -28,7 +28,7 @@ A banking application built with Java and Spring Boot, with a web page on top. I
 - Transaction history for every account
 - Web app with sign in, account list, deposit, withdraw, transfer and a passbook-style transaction history with running balance
 - Persistent data stored in a managed PostgreSQL database
-- Unit tests for account creation, deposits, withdrawals and transfers (including failure cases)
+- Unit tests for the service layer and integration tests for the REST API (login, 401 and 403 access control, deposits, withdrawals, transfers, admin endpoint)
 
 ## How Authentication Works
 1. `POST /api/auth/register` creates a customer user.
@@ -95,5 +95,9 @@ By default the app uses an in-memory H2 database locally. Optional environment v
 ```
 (On Windows use `mvnw.cmd test`.)
 
-## Roadmap
-- Integration tests for the REST endpoints
+Integration tests start the full application with an in-memory H2 database, so they never touch the production database.
+
+## Ideas for later
+- Pagination for the transaction history
+- Database migrations with Flyway
+- Refresh tokens for longer sessions
